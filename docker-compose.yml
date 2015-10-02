@@ -1,4 +1,4 @@
-web:
+api:
     build: .
     command: gin -a=8080
     working_dir: /go/src/github.com/paked/pay
