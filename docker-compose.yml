@@ -1,0 +1,8 @@
+web:
+    build: .
+    command: gin -a=8080
+    working_dir: /go/src/github.com/paked/pay
+    ports:
+        - "8080:3000"
+    volumes:
+        - .:/go/src/github.com/paked/pay
