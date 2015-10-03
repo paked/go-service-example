@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    charset utf-8;
+
+    location / {
+        root /app;
+    }
+
+    location /api {
+        proxy_pass http://backend:3000;
+    }
+}

@@ -1,8 +1,17 @@
-api:
+backend:
     build: .
     command: gin -a=8080
     working_dir: /go/src/github.com/paked/pay
-    ports:
-        - "8080:3000"
+    expose: 
+        - "3000"
     volumes:
         - .:/go/src/github.com/paked/pay
+frontend:
+    restart: always
+    build: nginx/
+    ports:
+        - "80:80"
+    volumes:
+        - ./static/:/app
+    links: 
+        - backend:backend
