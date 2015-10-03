@@ -5,8 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"gopkg.in/mgutz/dat.v1"
 	"gopkg.in/mgutz/dat.v1/sqlx-runner"
 )
+
+func init() {
+	dat.EnableInterpolation = true
+	dat.Strict = false
+}
 
 var DB *runner.DB
 
