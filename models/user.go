@@ -51,3 +51,15 @@ func NewUser(username, password, email string) (User, error) {
 
 	return u, err
 }
+
+func FetchUser(username string) (User, error) {
+	var u User
+
+	err := DB.
+		Select("*").
+		From("users").
+		Where("username = $1", username).
+		QueryStruct(&u)
+
+	return u, err
+}
