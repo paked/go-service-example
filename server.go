@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/paked/configure"
 	"github.com/paked/pay/models"
@@ -39,36 +40,40 @@ func main() {
 
 	fmt.Println("Welcome to pay.")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
 
-		fmt.Fprintln(w, "Welcome to vision (the backend)")
+	r.HandleFunc("/ping", pingHandler)
 
-		var n int64
-		err := models.DB.
-			Select("count(*)").
-			From("pings").
-			QueryScalar(&n)
+	fmt.Println(http.ListenAndServe(":8080", r))
+}
 
-		if err != nil {
-			fmt.Println("FAILED!")
-			return
-		}
+func pingHandler(w http.ResponseWriter, r *http.Request) {
 
-		fmt.Fprintf(w, "You are visitor #%v. Congratulations!", n)
+	fmt.Fprintln(w, "Welcome to vision (the backend)")
 
-		var ping Ping
-		err = models.DB.
-			InsertInto("pings").
-			Columns("message").
-			Values("hello!").
-			Returning("id", "message").
-			QueryStruct(&ping)
+	var n int64
+	err := models.DB.
+		Select("count(*)").
+		From("pings").
+		QueryScalar(&n)
 
-		if err != nil {
-			fmt.Println("FAILED NOW!")
-			return
-		}
-	})
+	if err != nil {
+		fmt.Println("FAILED!")
+		return
+	}
 
-	fmt.Println(http.ListenAndServe(":8080", nil))
+	fmt.Fprintf(w, "You are visitor #%v. Congratulations!", n)
+
+	var ping Ping
+	err = models.DB.
+		InsertInto("pings").
+		Columns("message").
+		Values("hello!").
+		Returning("id", "message").
+		QueryStruct(&ping)
+
+	if err != nil {
+		fmt.Println("FAILED NOW!")
+		return
+	}
 }
