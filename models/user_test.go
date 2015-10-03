@@ -26,4 +26,26 @@ func TestUserRegister(t *testing.T) {
 	if u.Email != email {
 		t.Errorf("Email not the same (expected:%v, got:%v)", email, u.Email)
 	}
+
+	if !u.Login(password) {
+		t.Error("Was not able to login with correct password")
+	}
+}
+
+func TestUserDoubleRegister(t *testing.T) {
+	var (
+		username = "test_user_register"
+		password = "password"
+		email    = "test_email"
+	)
+
+	_, err := NewUser(username, password, email)
+	if err != nil {
+		t.Error("Error creating user", err)
+	}
+
+	_, err = NewUser(username, password, email)
+	if err == nil {
+		t.Error("Was able to register two identical users")
+	}
 }
