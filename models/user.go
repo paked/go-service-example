@@ -12,6 +12,14 @@ type User struct {
 	Email    string `db:"email"`
 }
 
+func (u User) Login(password string) bool {
+	if u.Password == password {
+		return true
+	}
+
+	return false
+}
+
 func NewUser(username, password, email string) (User, error) {
 	var u User
 
