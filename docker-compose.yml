@@ -6,6 +6,10 @@ vision:
         - "3000"
     volumes:
         - .:/go/src/github.com/paked/pay
+    links:
+        - jarvis
+    env_file: .env
+
 mystique:
     restart: always
     build: nginx/
@@ -14,4 +18,6 @@ mystique:
     volumes:
         - ./static/:/app
     links: 
-        - vision:vision
+        - vision
+jarvis:
+    image: postgres

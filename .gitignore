@@ -25,3 +25,5 @@ _testmain.go
 
 pay
 gin-bin
+
+.env

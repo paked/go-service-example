@@ -1,3 +1,8 @@
 FROM golang:1.4
 
 RUN go get github.com/codegangsta/gin
+
+RUN go get github.com/lib/pq
+RUN go get gopkg.in/mgutz/dat.v1
+RUN go get gopkg.in/mgutz/dat.v1/sqlx-runner
+RUN go get github.com/paked/configure
