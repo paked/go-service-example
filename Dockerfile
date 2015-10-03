@@ -7,3 +7,4 @@ RUN go get gopkg.in/mgutz/dat.v1
 RUN go get gopkg.in/mgutz/dat.v1/sqlx-runner
 RUN go get github.com/paked/configure
 RUN go get github.com/gorilla/mux
+RUN go get github.com/paked/gerrycode/communicator

@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/paked/configure"
+	"github.com/paked/gerrycode/communicator"
 	"github.com/paked/pay/models"
 )
 
@@ -42,13 +43,31 @@ func main() {
 
 	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
 
-	r.HandleFunc("/ping", pingHandler)
+	r.HandleFunc("/ping", pingHandler).
+		Methods("GET")
+
+	r.HandleFunc("/users", registerHandler).
+		Methods("POST")
 
 	fmt.Println(http.ListenAndServe(":8080", r))
 }
 
-func pingHandler(w http.ResponseWriter, r *http.Request) {
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	coms := communicator.New(w)
 
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	email := r.FormValue("email")
+
+	u, err := models.NewUser(username, password, email)
+	if err != nil {
+		coms.Error("Unable to create user")
+	}
+
+	coms.OKWithData("user", u)
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome to vision (the backend)")
 
 	var n int64
