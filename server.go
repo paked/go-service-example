@@ -1,19 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
-	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/paked/configure"
-	"gopkg.in/mgutz/dat.v1/sqlx-runner"
+	"github.com/paked/pay/models"
 )
 
 var (
-	DB *runner.DB
-
 	conf      = configure.New()
 	dbName    = conf.String("db-name", "postgres", "DB_NAME")
 	dbUser    = conf.String("db-user", "postgres", "DB_USER")
@@ -22,50 +18,24 @@ var (
 	dbPort    = conf.String("db-port", "5432", "DB_PORT")
 )
 
-func db() {
-	db, err := sql.Open("postgres",
-		fmt.Sprintf("postgresql://%v:%v@%v:%v/%v?sslmode=disable",
-			*dbUser,
-			*dbPass,
-			*dbService,
-			*dbPort,
-			*dbName,
-		),
-	)
-
-	if err != nil {
-		fmt.Println("lol")
-		panic(err)
-	}
-
-	runner.MustPing(db)
-
-	runner.LogQueriesThreshold = 10 * time.Millisecond
-	DB = runner.NewDB(db, "postgres")
-
-	DB.DB.MustExec(query)
-}
-
-var query = `
-CREATE TABLE IF NOT EXISTS pings (
-	id serial PRIMARY KEY,
-	message text not null
-)
-`
-
 type Ping struct {
 	ID      int64  `db:"id"`
 	Message string `db:"message"`
 }
 
 func main() {
-	// fmt.Println("party")
 	conf.Use(configure.NewEnvironment())
 	conf.Use(configure.NewFlag())
 
 	conf.Parse()
 
-	db()
+	models.Init(
+		*dbUser,
+		*dbPass,
+		*dbService,
+		*dbPort,
+		*dbName,
+	)
 
 	fmt.Println("Welcome to pay.")
 
@@ -74,7 +44,7 @@ func main() {
 		fmt.Fprintln(w, "Welcome to vision (the backend)")
 
 		var n int64
-		err := DB.
+		err := models.DB.
 			Select("count(*)").
 			From("pings").
 			QueryScalar(&n)
@@ -87,7 +57,7 @@ func main() {
 		fmt.Fprintf(w, "You are visitor #%v. Congratulations!", n)
 
 		var ping Ping
-		err = DB.
+		err = models.DB.
 			InsertInto("pings").
 			Columns("message").
 			Values("hello!").
