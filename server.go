@@ -48,6 +48,8 @@ func main() {
 
 	r.HandleFunc("/users", registerHandler).
 		Methods("POST")
+	r.HandleFunc("/users", loginHandler).
+		Methods("GET")
 
 	fmt.Println(http.ListenAndServe(":8080", r))
 }
@@ -62,6 +64,28 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	u, err := models.NewUser(username, password, email)
 	if err != nil {
 		coms.Error("Unable to create user")
+		return
+	}
+
+	coms.OKWithData("user", u)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	coms := communicator.New(w)
+
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	u, err := models.FetchUser(username)
+	if err != nil {
+		fmt.Println(err)
+		coms.Error("Could not fetch user")
+		return
+	}
+
+	if !u.Login(password) {
+		coms.Error("Incorrect password")
+		return
 	}
 
 	coms.OKWithData("user", u)
