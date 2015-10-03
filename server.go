@@ -3,21 +3,27 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/paked/configure"
 	"github.com/paked/gerrycode/communicator"
 	"github.com/paked/pay/models"
+	"github.com/paked/restrict"
 )
 
 var (
-	conf      = configure.New()
+	conf = configure.New()
+
 	dbName    = conf.String("db-name", "postgres", "DB_NAME")
 	dbUser    = conf.String("db-user", "postgres", "DB_USER")
 	dbPass    = conf.String("db-pass", "postgres", "DB_PASS")
 	dbService = conf.String("db-service", "jarvis", "DB_SERVICE")
 	dbPort    = conf.String("db-port", "5432", "DB_PORT")
+
+	crypto = conf.String("crypto", "/crypto/app.rsa", "Your crypto")
 )
 
 type Ping struct {
@@ -31,6 +37,8 @@ func main() {
 
 	conf.Parse()
 
+	restrict.ReadCryptoKey(*crypto)
+
 	models.Init(
 		*dbUser,
 		*dbPass,
@@ -43,7 +51,7 @@ func main() {
 
 	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
 
-	r.HandleFunc("/ping", pingHandler).
+	r.HandleFunc("/ping", restrict.R(pingHandler)).
 		Methods("GET")
 
 	r.HandleFunc("/users", registerHandler).
@@ -88,10 +96,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	coms.OKWithData("user", u)
+	claims := make(map[string]interface{})
+	claims["id"] = u.ID
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	ts, err := restrict.Token(claims)
+	if err != nil {
+		coms.Fail("Failure signing the token")
+		return
+	}
+
+	coms.OKWithData("token", ts)
 }
 
-func pingHandler(w http.ResponseWriter, r *http.Request) {
+func pingHandler(w http.ResponseWriter, r *http.Request, t *jwt.Token) {
 	fmt.Fprintln(w, "Welcome to vision (the backend)")
 
 	var n int64
