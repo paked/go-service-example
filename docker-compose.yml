@@ -1,4 +1,4 @@
-backend:
+vision:
     build: .
     command: gin -a=8080
     working_dir: /go/src/github.com/paked/pay
@@ -6,7 +6,7 @@ backend:
         - "3000"
     volumes:
         - .:/go/src/github.com/paked/pay
-frontend:
+mystique:
     restart: always
     build: nginx/
     ports:
@@ -14,4 +14,4 @@ frontend:
     volumes:
         - ./static/:/app
     links: 
-        - backend:backend
+        - vision:vision
