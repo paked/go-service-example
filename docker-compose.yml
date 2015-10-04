@@ -1,11 +1,12 @@
 vision:
-    build: .
-    command: gin -a=8080
-    working_dir: /go/src/github.com/paked/pay
+    build: app/
+    command: gin -a=8080 -b="pay"
+    working_dir: /go/src/github.com/paked/pay/
     expose: 
         - "3000"
     volumes:
-        - .:/go/src/github.com/paked/pay
+        - ./app/:/go/src/github.com/paked/pay
+        - ./models/:/go/src/github.com/paked/pay/models
         - ./crypto/:/crypto
     links:
         - jarvis
