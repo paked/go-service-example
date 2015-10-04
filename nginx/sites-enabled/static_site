@@ -3,7 +3,7 @@ server {
     charset utf-8;
 
     location / {
-        root /app;
+        proxy_pass http://marvel:8080;
     }
 
     location /api {

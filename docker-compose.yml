@@ -12,14 +12,23 @@ vision:
         - jarvis
     env_file: .env
 
+marvel:
+    build: frontend/
+    working_dir: /site/
+    volumes:
+        - ./frontend/:/site/
+    command: "bash install 0<&- &>/dev/null &"
+    expose:
+        - "8080"
+
 mystique:
     restart: always
     build: nginx/
     ports:
         - "80:80"
-    volumes:
-        - ./static/:/app
     links: 
         - vision
+        - marvel
+
 jarvis:
     image: postgres

@@ -1,0 +1,12 @@
+{
+  "name": "pay",
+  "version": "0.0.1",
+  "homepage": "https://github.com/paked/pay",
+  "authors": [
+    "Harrison <harrison@theshoebridges.com>"
+  ],
+  "description": "the frontend for pay",
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}
